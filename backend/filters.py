@@ -26,18 +26,26 @@ def filter_workouts_by_date_range(
     return filtered
 
 
-def filter_workouts_by_type(
-    workouts: List[Workout], 
-    workout_type: Optional[str] = None
-) -> List[Workout]:
+def filter_workouts_by_type(workouts: List[Workout], workout_type: Optional[str] = None) -> List[Workout]:
     """
-    Filters workouts by type (e.g., "strength", "cardio", "bodyweight").
-    If no type specified, returns all workouts.
+    Filters workouts by checking if any exercises inside the workout matches the type.
+    If no type is specified, returns all workouts.
     """
     if not workout_type:
         return workouts
-    return [w for w in workouts if w.type == workout_type]
 
+    filtered_workouts = []
+    for w in workouts:
+        if w.exercises:
+            for ex in w.exercises:
+                if ex.type == workout_type:
+                    filtered_workouts.append(w)
+                    break # No need to check other exercises if one matches
+        else:
+            #If no exercises, fall back to workout's own type
+            if w.type == workout_type:
+                filtered_workouts.append(w)
+    return filtered_workouts
 
 def search_templates_by_name(
     templates: List[Template], 
