@@ -38,7 +38,6 @@ class Workout:
     exercises: Optional[List[Exercise]] = None  # Full exercise list, supporting cardio & strength
     duration_minutes: Optional[int] = None  # Total workout duration (optional)
     distance_mi: Optional[float] = None  # Total workout distance (optional)
-    intensity: Optional[str] = None
 
     @staticmethod
     def create(
@@ -49,7 +48,6 @@ class Workout:
         exercises: Optional[List[Exercise]] = None,
         duration_minutes: Optional[int] = None,
         distance_mi: Optional[float] = None,
-        intensity: Optional[str] = None,
     ) -> 'Workout':
         return Workout(
             id=str(uuid.uuid4()),
@@ -60,7 +58,6 @@ class Workout:
             exercises=exercises,
             duration_minutes=duration_minutes,
             distance_mi=distance_mi,
-            intensity=intensity
         )
 
 
