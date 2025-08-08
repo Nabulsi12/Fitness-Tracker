@@ -5,7 +5,8 @@ from backend.models import Workout
 from backend.db_fitness.workouts import delete_workout, update_workout
 from frontend.add_workout import input_workout
 from typing import List
-
+from datetime import date
+from backend.filters import filter_workouts_by_date_range, filter_workouts_by_type
 
 def show_timeline(workouts: List[Workout]):
     """
@@ -18,6 +19,27 @@ def show_timeline(workouts: List[Workout]):
         st.info("No workouts to display.")
         return
 
+    #--- Filtering Workouts ---
+    col1, col2 = st.columns(2)
+    with col1: 
+        start_date = st.date_input("Start Date", value=None)
+    with col2:
+        end_date = st.date_input("End Date", value=None)
+
+    workout_type = [ "All", "Strength", "Bodyweight", "Cardio" ]
+    selected_type = st.selectbox("Filter by Type", workout_type, index=0)
+
+    #--- Apply Filters ---
+    # Filter by type if not "All"
+    if selected_type != "All":
+        workouts = filter_workouts_by_type(workouts, selected_type.lower())
+    
+    # Filter by date range if dates selected (and not default today)
+    # Treat todays date as no filter
+    start_filter = start_date if start_date != date.today() else None
+    end_filter = end_date if end_date != date.today() else None
+    workouts = filter_workouts_by_date_range(workouts, start_filter, end_filter)
+
     # Sort workouts by date, latest first
     sorted_workouts = sorted(workouts, key=lambda w: w.date, reverse=True)
 
@@ -26,24 +48,21 @@ def show_timeline(workouts: List[Workout]):
         with st.expander(f"{workout.date.strftime('%Y-%m-%d')} - {workout.name} ({workout.type})"):
 
             # ----------------- Show workout data ------------------
-            if workout.type in ["strength", "bodyweight"]:
-                if workout.exercises:
-                    for ex in workout.exercises:
-                        st.markdown(f"**Exercise: {ex.name}**")
+            if workout.exercises:
+                for ex in workout.exercises:
+                    st.markdown(f"**Exercise: {ex.name}**")
+                    if ex.type in ["strength", "bodyweight"]:
                         if ex.sets:
                             for i, s in enumerate(ex.sets):
                                 st.text(f"Set {i + 1}: {s.reps} reps @ {s.weight} lbs")
                         else:
                             st.text("No sets recorded for this exercise.")
-                else:
-                    st.text("No exercises recorded.")
 
-            elif workout.type == "cardio":
-                st.text(f"Duration: {workout.duration_minutes or 'Unknown'} min")
-                st.text(f"Distance: {workout.distance_mi or 'Unknown'} miles")
-                st.text(f"Intensity: {workout.intensity or 'Unknown'}")
-
-            st.markdown("---")
+                    elif ex.type == "cardio":
+                        st.text(f"Duration: {ex.duration_minutes or 'Unknown'} min")
+                        st.text(f"Distance: {ex.distance_mi or 'Unknown'} miles")
+            else:
+                st.text("No exercises recorded.")
 
             # ------------- Action Buttons (Edit/Delete) --------------
 
