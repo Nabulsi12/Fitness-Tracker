@@ -1,0 +1,13 @@
+{
+    // VS Code setting: Chooses the default environment manager for Python projects
+    // "ms-python.python:conda" means Conda will be used to manage environments instead of venv or others
+    "python-envs.defaultEnvManager": "ms-python.python:conda",
+
+    // VS Code setting: Chooses the default package manager for Python packages
+    // This ensures that when you install packages from VS Code, it uses Conda's package manager
+    "python-envs.defaultPackageManager": "ms-python.python:conda",
+
+    // VS Code setting: Keeps a list of recognized Python projects in your workspace
+    // Empty array means no projects have been manually added yet
+    "python-envs.pythonProjects": []
+}
