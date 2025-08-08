@@ -47,7 +47,6 @@ def input_workout(username: str):
             sets=[],
             duration_minutes=None,
             distance_mi=None,
-            intensity=None
         )
 
         st.session_state["template_loaded"] = selected_template_name
@@ -75,7 +74,6 @@ def input_workout(username: str):
     exercises = []
     duration = None
     distance = None
-    intensity = None
 
     if workout_type in ["strength", "bodyweight"]:
         st.subheader("Exercises")
@@ -140,24 +138,26 @@ def input_workout(username: str):
             elif exercise_type == "cardio":
                 col1, col2 = st.columns(2)
                 with col1:
+                    duration_val =  existing_exercises[i].duration_minutes if i < len(existing_exercises) and existing_exercises[i].duration_minutes else 30
                     duration = st.number_input(
                         f"{exercise_name} - Duration (minutes)",
                         min_value=0,
-                        value=existing_exercises[i].sets[0].reps if i < len(existing_exercises) and existing_exercises[i].sets else 30,
+                        value=duration_val,
                         step=1,
                         key=f"duration_{i}"
                     )
                 with col2:
+                    distance_val = existing_exercises[i].distance_mi if i < len(existing_exercises) and existing_exercises[i].distance_mi else 1.0
                     distance = st.number_input(
                         f"{exercise_name} - Distance (mi)",
                         min_value=0.0,
-                        value=existing_exercises[i].sets[0].weight if i < len(existing_exercises) and existing_exercises[i].sets else 1.0,
+                        value=distance_val,
                         step=0.1,
                         key=f"distance_{i}"
                     )
-                exercise_sets = [WorkoutSet(reps=duration, weight=distance)]
+                exercise_sets = None
 
-            exercises.append(Exercise(name=exercise_name, type=exercise_type, sets=exercise_sets))
+            exercises.append(Exercise(name=exercise_name, type=exercise_type, sets=exercise_sets, duration_minutes=duration, distance_mi=distance))
 
     else:  # workout_type == cardio (single-entry workout)
         duration = st.number_input(
@@ -172,12 +172,6 @@ def input_workout(username: str):
             value=edit_workout.distance_mi if edit_workout else 0.0,
             step=0.1,
         )
-        intensity_options = ["Low", "Medium", "High"]
-        intensity = st.selectbox(
-            "Intensity",
-            options=intensity_options,
-            index=intensity_options.index(edit_workout.intensity) if (edit_workout and edit_workout.intensity in intensity_options) else 0,
-        )
         sets = []
         exercises = None
 
@@ -189,7 +183,6 @@ def input_workout(username: str):
             exercises=exercises if workout_type in ["strength", "bodyweight"] else None,
             duration=duration,
             distance=distance,
-            intensity=intensity,
         )
 
         if error:
@@ -204,7 +197,6 @@ def input_workout(username: str):
             exercises=exercises,
             duration_minutes=duration,
             distance_mi=distance,
-            intensity=intensity,
         )
 
         try:
